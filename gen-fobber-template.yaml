@@ -2,7 +2,7 @@
 # This template includes all the CC1101 functionality with configurable pins and button codes
 
 esphome:
-  name: cc1101-fobber-project  # Change this to your project name
+  name: gen-fobber-project  # Change this to your project name
   includes:
     - cc1101.h
   libraries:

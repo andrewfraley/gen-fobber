@@ -1,5 +1,5 @@
 esphome:
-  name: cc1101-transmit
+  name: gen-fobber-transmit
   includes:
     - cc1101.h
   libraries:

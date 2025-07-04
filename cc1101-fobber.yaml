@@ -1,0 +1,167 @@
+# CC1101 Fobber Component - Reusable include file
+# Include this file in your main ESPHome configuration
+# Override pins by defining globals before including this file
+
+# Required includes and libraries
+includes:
+  - cc1101.h
+
+libraries:
+  - SPI
+  - "SmartRC-CC1101-Driver-Lib"
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/robertklep/esphome-custom-component
+    components:
+      - "custom"
+      - "custom_component"
+
+# CC1101 Pin Configuration - can be overridden from parent file
+# Default values if not specified in parent
+globals:
+  - id: cc1101_sck_pin
+    type: int
+    initial_value: '18'
+  - id: cc1101_miso_pin
+    type: int
+    initial_value: '19'
+  - id: cc1101_mosi_pin
+    type: int
+    initial_value: '23'
+  - id: cc1101_csn_pin
+    type: int
+    initial_value: '5'
+  - id: cc1101_gdo0_pin
+    type: int
+    initial_value: '2'
+  - id: cc1101_dry_contact_pin
+    type: int
+    initial_value: '15'
+
+# Button transmission codes - can be overridden from parent file
+# Default values if not specified in parent
+  - id: cc1101_button1_code
+    type: std::vector<int>
+    initial_value: '[339, -1161, 1071, -413, 1062, -423, 321, -1159, 330, -1144, 1064, -419, 324, -1171, 1064, -419, 1073, -413, 1062, -422, 319, -1163, 1055, -414, 1085, -419, 1068, -409, 336, -1145, 323, -1161, 1074, -413, 338, -1146, 319, -1165, 329, -1145, 337, -1158, 318, -1166, 335, -1146, 1073, -422, 327]'
+  - id: cc1101_button2_code
+    type: std::vector<int>
+    initial_value: '[330, -1143, 1064, -419, 1075, -413, 337, -1150, 319, -1163, 1056, -433, 312, -1178, 1069, -408, 1061, -414, 1080, -417, 321, -1151, 1065, -421, 1067, -404, 1085, -406, 340, -1158, 321, -1150, 1061, -421, 319, -1165, 330, -1170, 302, -1182, 321, -1151, 334, -1146, 1067, -432, 334, -1146, 324]'
+
+# The CC1101 is initialized using the frequency specified in the 'tx_frequency' slider's initial_value.
+# Further changes will be applied via the slider's on_value lambda.
+
+sensor:
+  - platform: custom
+    sensors:
+      - id: transceiver
+        internal: true
+    lambda: |-
+      auto my_sensor = new CC1101(
+        id(cc1101_sck_pin),   // SCK
+        id(cc1101_miso_pin),  // MISO
+        id(cc1101_mosi_pin),  // MOSI
+        id(cc1101_csn_pin),   // CSN
+        id(cc1101_gdo0_pin),  // GDO0
+        200,  // bandwidth_khz
+        433.92, // frequency_mhz
+        id(transmitter)
+      );
+      App.register_component(my_sensor);
+      return {my_sensor};
+
+remote_transmitter:
+  - id: transmitter
+    pin:
+      number: !lambda "return id(cc1101_gdo0_pin);"
+      allow_other_uses: true
+    carrier_duty_percent: 100%
+
+remote_receiver:
+  - id: receiver
+    pin:
+      number: !lambda "return id(cc1101_gdo0_pin);"
+      allow_other_uses: true
+    dump:
+      - raw
+
+# Slider to adjust TX frequency in MHz
+number:
+  - platform: template
+    name: "TX Frequency"
+    id: tx_frequency
+    unit_of_measurement: "MHz"
+    min_value: 430.000
+    max_value: 440.000
+    step: 0.001
+    optimistic: true
+    initial_value: 433.89
+    on_value:
+      - lambda: |-
+          get_cc1101(transceiver).setFreq(x);
+
+# Raw receive toggle
+switch:
+  - platform: template
+    name: "CC1101 Raw Receive"
+    id: receive_mode
+    optimistic: true
+    turn_on_action:
+      - lambda: |-
+          get_cc1101(transceiver).endTransmission();
+    turn_off_action:
+      - lambda: |-
+          // Ensure correct TX frequency
+          get_cc1101(transceiver).setFreq(id(tx_frequency).state);
+      - lambda: |-
+          get_cc1101(transceiver).beginTransmission();
+
+# Dry contact input for CC1101 transmission
+binary_sensor:
+  - platform: gpio
+    name: "CC1101 Dry Contact"
+    id: physical_button
+    pin:
+      number: !lambda "return id(cc1101_dry_contact_pin);"
+      mode: INPUT_PULLUP
+      inverted: true  # If it sends button 2 on press down instead of button 1, change this to false
+    filters:
+      - delayed_on: 50ms
+      - delayed_off: 50ms
+    on_press:
+      - button.press: cc1101_transmit_button_1
+    on_release:
+      - button.press: cc1101_transmit_button_2
+
+# Transmit buttons
+button:
+  - platform: template
+    name: "CC1101 Transmit Button 1"
+    id: cc1101_transmit_button_1
+    icon: mdi:alpha-1-circle-outline
+    on_press:
+      - switch.turn_off: receive_mode
+      - lambda: |-
+          get_cc1101(transceiver).setFreq(id(tx_frequency).state);
+          get_cc1101(transceiver).beginTransmission();;
+      - remote_transmitter.transmit_raw:
+          code: !lambda "return id(cc1101_button1_code);"
+          repeat:
+            times: 3
+            wait_time: 15ms
+
+  - platform: template
+    name: "CC1101 Transmit Button 2"
+    id: cc1101_transmit_button_2
+    icon: mdi:alpha-2-circle-outline
+    on_press:
+      - switch.turn_off: receive_mode
+      - lambda: |-
+          get_cc1101(transceiver).setFreq(id(tx_frequency).state);
+          get_cc1101(transceiver).beginTransmission();
+      - remote_transmitter.transmit_raw:
+          code: !lambda "return id(cc1101_button2_code);"
+          repeat:
+            times: 3
+            wait_time: 15ms

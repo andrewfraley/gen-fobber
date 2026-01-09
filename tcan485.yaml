@@ -30,14 +30,14 @@ packages:
       cc1101_frequency: "433920000"  # 433.92 MHz in Hz
       # CC1101 Pin Configuration (LilyGo T-Connect header pins)
       cc1101_gdo0_pin: "25"
-      cc1101_gdo2_pin: "18"
+      cc1101_gdo2_pin: "34"
       cc1101_cs_pin: "5"
       spi_clk_pin: "12"
       spi_miso_pin: "33"
       spi_mosi_pin: "32"
       # cc1101_gdo2_pin: "1"  # GDO2 for RX (remote_receiver)
       # Dry Contact Input Pin
-      dry_contact_pin: "34"
+      dry_contact_pin: "18"
       dry_contact_inverted: "true"
       # Start/Stop Generator Transmission Codes
       start_generator_code: "339, -1161, 1071, -413, 1062, -423, 321, -1159, 330, -1144, 1064, -419, 324, -1171, 1064, -419, 1073, -413, 1062, -422, 319, -1163, 1055, -414, 1085, -419, 1068, -409, 336, -1145, 323, -1161, 1074, -413, 338, -1146, 319, -1165, 329, -1145, 337, -1158, 318, -1166, 335, -1146, 1073, -422, 327"

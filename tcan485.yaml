@@ -1,5 +1,4 @@
-# CC1101 Fobber Template - Copy this file and customize for your project
-# This template includes all the CC1101 functionality with configurable pins and button codes
+# LilyGo TCAN485
 
 esphome:
   name: gen-fobber-project  # Change this to your project name
@@ -26,22 +25,30 @@ packages:
     file: ../yambms-genfobber/yambms_genfobber.yaml
     vars:
       friendly_name: "TCAN485"
+      log_level: "INFO"  # VERBOSE / DEBUG / INFO / WARN
+      log_tag: "genfobber"
+
       # CC1101 Configuration
-      cc1101_frequency: "433920000"  # 433.92 MHz in Hz
-      # CC1101 Pin Configuration (LilyGo T-Connect header pins)
-      cc1101_gdo0_pin: "25"
-      cc1101_gdo2_pin: "34"
-      cc1101_cs_pin: "5"
-      spi_clk_pin: "12"
-      spi_miso_pin: "33"
-      spi_mosi_pin: "32"
-      # cc1101_gdo2_pin: "1"  # GDO2 for RX (remote_receiver)
+      cc1101_frequency: "433.92MHz"
+
+      # CC1101 Pins (keep pin numbers the same)
+      # GND                 # 1 - Black
+      # VCC (+3.3V)         # 2 - Red
+      cc1101_gdo0_pin: "25" # 3 - Blue
+      cc1101_cs_pin: "5"    # 4 - Green
+      spi_clk_pin: "12"     # 5 - Yellow
+      spi_mosi_pin: "32"    # 6 - Orange
+      spi_miso_pin: "33"    # 7 - Purple
+      cc1101_gdo2_pin: "34" # 8 - White
+
       # Dry Contact Input Pin
       dry_contact_pin: "18"
       dry_contact_inverted: "true"
+
       # Start/Stop Generator Transmission Codes
       start_generator_code: "339, -1161, 1071, -413, 1062, -423, 321, -1159, 330, -1144, 1064, -419, 324, -1171, 1064, -419, 1073, -413, 1062, -422, 319, -1163, 1055, -414, 1085, -419, 1068, -409, 336, -1145, 323, -1161, 1074, -413, 338, -1146, 319, -1165, 329, -1145, 337, -1158, 318, -1166, 335, -1146, 1073, -422, 327"
       stop_generator_code: "330, -1143, 1064, -419, 1075, -413, 337, -1150, 319, -1163, 1056, -433, 312, -1178, 1069, -408, 1061, -414, 1080, -417, 321, -1151, 1065, -421, 1067, -404, 1085, -406, 340, -1158, 321, -1150, 1061, -421, 319, -1165, 330, -1170, 302, -1182, 321, -1151, 334, -1146, 1067, -432, 334, -1146, 324"
+
       # Transmission Settings
       tx_repeat_times: "3"
       tx_repeat_wait: "15ms" # This might be critical depending on the device receiving the signal, adjust if necessary

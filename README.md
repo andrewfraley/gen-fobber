@@ -52,7 +52,15 @@ wifi_password: "YourWiFiPassword"
 
 Create a new ESPHome YAML configuration file that includes the gen-fobber template. See the [Example Configurations](#example-configurations) section below for board-specific examples.
 
-### 5. Compile and Upload
+### Install ESPHome
+
+From the genfobber-esphome directory:
+
+1. `python3 -m venv venv`
+2. `source venv/bin/activate` - Note you need to run this specific command every time you have a new terminal
+3. `pip install esphome`
+
+### 6. Compile and Upload
 
 Use ESPHome to compile and upload your configuration:
 

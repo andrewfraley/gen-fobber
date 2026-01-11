@@ -38,7 +38,7 @@ packages:
       ref: main
       refresh: 0s
       files:
-        - path: 'genfober.yaml'
+        - path: 'genfobber.yaml'
           vars:
             # Logger Configuration
             log_level: "INFO"  # VERBOSE / DEBUG / INFO / WARN  (note your global log level needs to be at least this same level to see these logs)

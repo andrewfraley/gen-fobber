@@ -1,0 +1,68 @@
+# LilyGo T-Connect
+# Available Pins
+# IO2 | IO1
+# IO41 | IO42
+# IO39 | IO40
+# IO37 | IO38
+# IO35 | IO36
+# IO48 | IO45
+# IO21 | IO47
+# IO13 | IO14
+# IO11 | IO12
+# GND | IO46
+# GND | GND
+# V3 | +5V
+
+esphome:
+  name: yambms  # Change this to your project name
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+logger:
+  level: DEBUG
+
+api:
+
+ota:
+  platform: esphome
+
+packages:
+  genfobber: !include
+    file: ../yambms-genfobber/yambms_genfobber.yaml
+    vars:
+      friendly_name: "TCAN485"
+      log_level: "INFO"  # VERBOSE / DEBUG / INFO / WARN
+      log_tag: "genfobber"
+
+      # CC1101 Configuration
+      cc1101_frequency: "433.92MHz"
+
+      # CC1101 Pins
+      # GND                 # 1 - Black
+      # VCC (+3.3V)         # 2 - Red
+      cc1101_gdo0_pin: "42" # 3 - Blue
+      cc1101_cs_pin: "40"   # 4 - Green
+      spi_clk_pin: "1"      # 5 - Yellow
+      spi_mosi_pin: "13"    # 6 - Orange
+      spi_miso_pin: "38"    # 7 - Purple
+      cc1101_gdo2_pin: "48" # 8 - White (moved off PSRAM pin for RX stability)
+
+      # Dry Contact Input Pin
+      dry_contact_pin: "11" # Grey
+      dry_contact_inverted: "true"
+
+      # Start/Stop Generator Transmission Codes
+      start_generator_code: "339, -1161, 1071, -413, 1062, -423, 321, -1159, 330, -1144, 1064, -419, 324, -1171, 1064, -419, 1073, -413, 1062, -422, 319, -1163, 1055, -414, 1085, -419, 1068, -409, 336, -1145, 323, -1161, 1074, -413, 338, -1146, 319, -1165, 329, -1145, 337, -1158, 318, -1166, 335, -1146, 1073, -422, 327"
+      stop_generator_code: "330, -1143, 1064, -419, 1075, -413, 337, -1150, 319, -1163, 1056, -433, 312, -1178, 1069, -408, 1061, -414, 1080, -417, 321, -1151, 1065, -421, 1067, -404, 1085, -406, 340, -1158, 321, -1150, 1061, -421, 319, -1165, 330, -1170, 302, -1182, 321, -1151, 334, -1146, 1067, -432, 334, -1146, 324"
+      
+      # Transmission Settings
+      tx_repeat_times: "3"
+      tx_repeat_wait: "15ms" # This might be critical depending on the device receiving the signal, adjust if necessary
+    

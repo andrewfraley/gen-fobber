@@ -68,6 +68,24 @@ Use ESPHome to compile and upload your configuration:
 esphome run your-config.yaml --device 192.168.1.100
 ```
 
+### 7. Home Assistant Integration
+
+Install the [ESPHome Add-on](https://www.home-assistant.io/integrations/esphome/)
+
+
+Once your ESP32 device is powered on and connected to WiFi, it should automatically appear in Home Assistant:
+
+1. Open Home Assistant
+2. Go to **Settings** → **Devices & Services**
+3. Click on the **ESPHome** integration (or search for it)
+4. Your device should appear in the list of ESPHome devices
+5. Click on your device to view and control it
+
+Once the device is discovered, you'll have access to:
+- **Start Generator** button - Transmits the start command
+- **Stop Generator** button - Transmits the stop command
+- **CC1101 Listen Mode** switch - Enables/disables listen mode for capturing codes
+- **Dry Contact** binary sensor - Shows the state of the dry contact input
 
 ## Example Configurations
 

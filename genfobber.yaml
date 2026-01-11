@@ -1,0 +1,171 @@
+# CC1101 Fobber Template - Include this file and override substitutions
+# This template includes all the CC1101 functionality with configurable pins and button codes
+
+substitutions:
+  log_level: "INFO"  # VERBOSE / DEBUG / INFO / WARN
+  log_tag: "genfobber"
+
+  # CC1101 Frequency Configuration
+  cc1101_frequency: "433920000"  # 433.92 MHz in Hz
+
+  # SPI Pin Configuration (LilyGo T-Connect header pins)
+  spi_clk_pin: "99"  # AKA SCK
+  spi_mosi_pin: "99"
+  spi_miso_pin: "99"
+
+  # CC1101 Pin Configuration
+  cc1101_cs_pin: "99"   # AKA CSN
+  cc1101_gdo0_pin: "99"
+  cc1101_gdo2_pin: "99"
+
+  # Dry Contact Input Pin
+  dry_contact_pin: "99"  # IO38 - Safe
+  dry_contact_inverted: "true"  # Set to false if button logic is inverted
+
+  # Start Generator Transmission Code (raw format)
+  start_generator_code: "339, -1161"
+  # Stop Generator Transmission Code (raw format)
+  stop_generator_code: "330, -1143"
+
+  # Transmission Settings
+  tx_repeat_times: "3"
+  tx_repeat_wait: "15ms"
+
+  # CC1101 Settings you probably don't need to change unless you know what you're doing
+  modulation_type: "ASK/OOK"
+  symbol_rate: 4800
+  filter_bandwidth: 203kHz
+  manchester: false
+
+# SPI Bus Configuration
+spi:
+  - id: cc1101_spi_bus
+    clk_pin: ${spi_clk_pin}
+    mosi_pin: ${spi_mosi_pin}
+    miso_pin: ${spi_miso_pin}
+
+# CC1101 Configuration
+cc1101:
+  spi_id: cc1101_spi_bus
+  cs_pin: ${cc1101_cs_pin}
+  frequency: ${cc1101_frequency}
+  modulation_type: ${modulation_type}
+  symbol_rate: ${symbol_rate}
+  filter_bandwidth: ${filter_bandwidth}
+  manchester: ${manchester}
+
+# Remote Transmitter (single-pin wiring: GDO0 for TX)
+remote_transmitter:
+  pin:
+    number: ${cc1101_gdo0_pin}
+    mode:
+      input: false
+      output: true
+      open_drain: false
+      pullup: false
+  carrier_duty_percent: 100%  # 100% for RF (not infrared)
+  non_blocking: true  # Required to silence warning from 2025.11.0+
+  on_transmit:
+    then:
+      - logger.log:
+          format: "Transmission started"
+          level: ${log_level}
+          tag: ${log_tag}
+      - cc1101.set_idle
+      - cc1101.begin_tx
+      - delay: 1ms  # let CC1101 settle before first edge
+  on_complete:
+    then:
+      - logger.log:
+          format: "Transmission complete"
+          level: ${log_level}
+          tag: ${log_tag}
+      - cc1101.set_idle
+
+# Remote Receiver (single-pin wiring: GDO0 for RX)
+remote_receiver:
+  pin:
+    number: ${cc1101_gdo2_pin}
+  dump:
+    - raw
+
+# Listen mode toggle
+switch:
+  - platform: template
+    name: "CC1101 Listen Mode"
+    id: listen_mode
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+    turn_on_action:
+      - cc1101.begin_rx
+    turn_off_action:
+      - cc1101.set_idle
+
+# Dry contact input for CC1101 transmission
+binary_sensor:
+  - platform: gpio
+    name: "${friendly_name} Dry Contact"
+    id: physical_button
+    pin:
+      number: ${dry_contact_pin}
+      mode:
+        input: true
+        pullup: true
+      inverted: ${dry_contact_inverted}
+    filters:
+      - delayed_on: 50ms
+      - delayed_off: 50ms
+    on_press:
+      - logger.log:
+          format: "Dry contact closed - triggering start generator"
+          level: ${log_level}
+          tag: ${log_tag}
+      - button.press: cc1101_start_generator
+    on_release:
+      - logger.log:
+          format: "Dry contact released - triggering stop generator"
+          level: ${log_level}
+          tag: ${log_tag}
+      - button.press: cc1101_stop_generator
+
+# Transmit buttons
+button:
+  - platform: template
+    name: "${friendly_name} Start Generator"
+    id: cc1101_start_generator
+    icon: mdi:power
+    on_press:
+      - logger.log:
+          format: "Start Generator: Starting transmission"
+          level: ${log_level}
+          tag: ${log_tag}
+      - remote_transmitter.transmit_raw:
+          code: !lambda |-
+            return {${start_generator_code}};
+          repeat:
+            times: ${tx_repeat_times}
+            wait_time: ${tx_repeat_wait}
+      - logger.log:
+          format: "Start Generator: Transmission complete"
+          level: ${log_level}
+          tag: ${log_tag}
+
+  - platform: template
+    name: "${friendly_name} Stop Generator"
+    id: cc1101_stop_generator
+    icon: mdi:power-off
+    on_press:
+      - logger.log:
+          format: "Stop Generator: Starting transmission"
+          level: ${log_level}
+          tag: ${log_tag}
+      - remote_transmitter.transmit_raw:
+          code: !lambda |-
+            return {${stop_generator_code}};
+          repeat:
+            times: ${tx_repeat_times}
+            wait_time: ${tx_repeat_wait}
+      - logger.log:
+          format: "Stop Generator: Transmission complete"
+          level: ${log_level}
+          tag: ${log_tag}

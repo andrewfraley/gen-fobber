@@ -5,7 +5,7 @@ genfobber-esphome allows 2-wire generator control by transmitting key fob signal
 
 ## Overview
 
-gen-fobber provides an ESPHome configuration template that enables ESP32-based boards to control generators via RF signals using the CC1101 transceiver module. The system can be triggered through dry contact inputs or remotely via ESPHome's API/Home Assistant integration.
+genfobber-esphome provides an ESPHome configuration template that enables ESP32-based boards to control generators via RF signals using the CC1101 transceiver module. The system can be triggered through dry contact inputs or remotely via ESPHome's API/Home Assistant integration.
 
 ## Features
 
@@ -282,7 +282,7 @@ Wiring steps:
 6. Connect CC1101 pin 6 (MOSI, Orange wire) to MOSI GPIO pin
 7. Connect CC1101 pin 7 (MISO, Purple wire) to MISO GPIO pin
 8. Connect CC1101 pin 8 (GDO2, White wire) to GDO2 GPIO pin (for reception)
-9. (Optional) Connect dry contact input to selected GPIO pin with pull-up
+9. (Optional) Connect dry contact input to selected GPIO pin, the other dry contact wire will go to any GND pin on the board.
 
 **Note:** Ensure all connections are secure and double-check pin assignments before powering on. Using the recommended color scheme will make it easier to verify connections and troubleshoot any wiring issues.
 
@@ -321,7 +321,7 @@ An SDR (Software Defined Radio) dongle can be very helpful for debugging and ver
 
 This can help identify whether transmission problems are related to the CC1101 module, antenna connection, or transmission codes.
 
-Note if you see very weak / narrow signals coming from the CC1101, it's either a wiring issue or you have selected incompatible pins (especially the SPI pins are very finiky)
+Note if you see very weak / narrow signals coming from the CC1101, it's either a wiring issue or you have selected incompatible pins (especially the SPI pins are very finiky).
 
 ## License
 

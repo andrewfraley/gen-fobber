@@ -54,14 +54,6 @@ cc1101:
   filter_bandwidth: ${filter_bandwidth}
   manchester: ${manchester}
 
-# Put CC1101 in idle state on boot (required before TX/RX).
-# Priority -100 runs after SPI and CC1101 are initialized (see esphome.io on_boot).
-# Must be under esphome: in ESPHome 2026.x (packages merge this into main config).
-esphome:
-  on_boot:
-    priority: -100.0
-    then:
-      - cc1101.reset
 
 # Remote Transmitter (single-pin wiring: GDO0 for TX)
 remote_transmitter:
@@ -106,10 +98,8 @@ switch:
     optimistic: true
     restore_mode: ALWAYS_OFF
     turn_on_action:
-      - cc1101.reset
       - cc1101.begin_rx
     turn_off_action:
-      - cc1101.reset
       - cc1101.set_idle
 
 # Dry contact input for CC1101 transmission.

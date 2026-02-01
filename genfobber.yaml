@@ -87,7 +87,7 @@ remote_transmitter:
 remote_receiver:
   pin:
     number: ${cc1101_gdo2_pin}
-  dump: all
+  dump: raw
 
 # Listen mode toggle
 switch:
@@ -97,6 +97,7 @@ switch:
     optimistic: true
     restore_mode: ALWAYS_OFF
     turn_on_action:
+      - cc1101.set_idle
       - cc1101.begin_rx
     turn_off_action:
       - cc1101.set_idle

@@ -106,8 +106,10 @@ switch:
     optimistic: true
     restore_mode: ALWAYS_OFF
     turn_on_action:
+      - cc1101.reset
       - cc1101.begin_rx
     turn_off_action:
+      - cc1101.reset
       - cc1101.set_idle
 
 # Dry contact input for CC1101 transmission.

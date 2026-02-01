@@ -62,7 +62,6 @@ esphome:
     priority: -100.0
     then:
       - cc1101.reset
-      - cc1101.set_idle
 
 # Remote Transmitter (single-pin wiring: GDO0 for TX)
 remote_transmitter:

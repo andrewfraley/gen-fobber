@@ -54,6 +54,13 @@ cc1101:
   filter_bandwidth: ${filter_bandwidth}
   manchester: ${manchester}
 
+# Put CC1101 in idle state on boot (required before TX/RX).
+# Priority -100 runs after SPI and CC1101 are initialized (see esphome.io on_boot).
+on_boot:
+  priority: -100.0
+  then:
+    - cc1101.set_idle
+
 # Remote Transmitter (single-pin wiring: GDO0 for TX)
 remote_transmitter:
   pin:
@@ -101,7 +108,8 @@ switch:
     turn_off_action:
       - cc1101.set_idle
 
-# Dry contact input for CC1101 transmission
+# Dry contact input for CC1101 transmission.
+# Exposed to Home Assistant: state "on" = closed, "off" = open (with inverted: true).
 binary_sensor:
   - platform: gpio
     name: "${friendly_name} Dry Contact"
